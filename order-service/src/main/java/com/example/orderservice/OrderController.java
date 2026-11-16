@@ -1,9 +1,12 @@
 package com.example.orderservice;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import java.util.*;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
@@ -24,11 +27,16 @@ public class OrderController {
         );
     }
 
-    @GetMapping("/product/{id}")
+    @GetMapping(value = "/product/{id}", produces = "application/json")
     public String getProduct(@PathVariable int id) {
         return restClient.get()
                 .uri("/api/products/{id}", id)
                 .retrieve()
                 .body(String.class);
+    }
+
+    @ExceptionHandler(HttpClientErrorException.NotFound.class)
+    public ResponseEntity<Void> handleNotFound() {
+        return ResponseEntity.notFound().build();
     }
 }
